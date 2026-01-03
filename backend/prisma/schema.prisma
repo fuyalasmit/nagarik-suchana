@@ -41,6 +41,12 @@ model Notice {
   profession    String?
   qualification String?
 
+  // OCR and AI extracted fields
+  ocrText          String?  // Full OCR extracted text
+  ocrConfidence    Float?   // OCR confidence score
+  extractedFields  Json?    // Structured data extracted by LLM
+  processingStatus String   @default("pending") // pending, processing, completed, failed
+
   status    String   @default("draft") // draft, pending, published, archived
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
