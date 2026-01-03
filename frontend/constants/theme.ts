@@ -5,17 +5,27 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
+// Palette variables (edit these to change the app palette)
+export const Palette = {
+  primary: '#B8DB80',
+  backgroundLight: '#F7F6D3',
+  accent: '#FFE4EF',
+  accentStrong: '#F39EB6',
+};
+
+const tintColorLight = Palette.primary;
 const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    background: Palette.backgroundLight,
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+    accent: Palette.accent,
+    accentStrong: Palette.accentStrong,
   },
   dark: {
     text: '#ECEDEE',
@@ -24,6 +34,8 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    accent: Palette.accent,
+    accentStrong: Palette.accentStrong,
   },
 };
 

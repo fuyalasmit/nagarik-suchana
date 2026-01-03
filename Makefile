@@ -3,8 +3,6 @@
 up-all:
 	docker compose up -d
 	cd backend && npm install
-	cd backend && npx prisma generate
 	cd backend && npx prisma migrate dev --name init
-	cd backend && npm run dev &
-	cd frontend && npm install
-cd frontend && npm run web
+	cd backend && npm run dev & \
+	cd frontend && npm run start
