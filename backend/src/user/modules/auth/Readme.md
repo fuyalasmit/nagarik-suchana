@@ -7,7 +7,7 @@ Request body (application/json): { "name": string, "email": string, "password": 
 Success (201): { "user": { "id": string, "email": string, "name": string, "phone"?: string, "address"?: string, "createdAt": string } }
 Errors: 400 (validation / user exists), 500
 Example cURL:
-curl -X POST http://localhost:5000/api/auth/register \
+curl -X POST http://localhost:3001/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"name":"Alice Kumar","email":"alice@example.com","password":"secret123","phone":"+9779812345678","address":"Thapathali, Kathmandu, Nepal"}'
 
@@ -20,7 +20,7 @@ Request body (application/json): { "email": string, "password": string }
 Success (200): { "user": { "id": string, "email": string, "name": string } }
 Errors: 400 (validation), 401 (invalid credentials), 500
 Example cURL:
-curl -X POST http://localhost:5000/api/auth/login \
+curl -X POST http://localhost:3001/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"alice@example.com","password":"secret123"}'
 
@@ -34,7 +34,7 @@ Success (200): { "user": { "id": string, "email": string, "name": string, "phone
 Errors: 401 (missing/invalid Basic auth), 404 (not found), 500
 Example cURL:
 AUTH=$(printf "alice@example.com:secret123" | base64)
-curl http://localhost:5000/api/auth/profile -H "Authorization: Basic $AUTH"
+curl http://localhost:3001/api/auth/profile -H "Authorization: Basic $AUTH"
 
 
 
@@ -47,7 +47,7 @@ Success (200): { "user": { "id": string, "email": string, "name": string, "phone
 Errors: 400 (validation), 401 (auth), 500
 Example cURL (change name & phone):
 AUTH=$(printf "alice@example.com:secret123" | base64)
-curl -X PUT http://localhost:5000/api/auth/profile \
+curl -X PUT http://localhost:3001/api/auth/profile \
   -H "Authorization: Basic $AUTH" \
   -H "Content-Type: application/json" \
   -d '{"name":"Alice K.","phone":"+9779800000000"}'
@@ -62,4 +62,4 @@ Success (200): { "success": true }
 Errors: 401 (auth), 500
 Example cURL:
 AUTH=$(printf "alice@example.com:secret123" | base64)
-curl -X DELETE http://localhost:5000/api/auth/profile -H "Authorization: Basic $AUTH"
+curl -X DELETE http://localhost:3001/api/auth/profile -H "Authorization: Basic $AUTH"

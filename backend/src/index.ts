@@ -3,8 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from './user/modules/auth/auth.routes'
 import path from "path";
-import ocrRouter from "../ocr_backend/ocr";
-import llmRouter from "../ocr_backend/llm";
+import ocrRouter from "./ocr_backend/ocr";
+import llmRouter from "./ocr_backend/llm";
 
 dotenv.config();
 
