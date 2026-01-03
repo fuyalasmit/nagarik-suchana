@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from './user/modules/auth/auth.routes'
+import noticeRoutes from './admin/modules/notices/notice.routes'
 import path from "path";
 import ocrRouter from "./ocr_backend/ocr";
 import llmRouter from "./ocr_backend/llm";
@@ -19,6 +20,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/test", express.static(path.join(__dirname, "../../test_frontend")));
 
 app.use('/api/auth',authRoutes)
+app.use('/api/admin/notices',noticeRoutes)
 
 app.get("/", (_req, res) => {
   res.send("server is running");

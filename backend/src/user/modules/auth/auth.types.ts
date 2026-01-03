@@ -4,6 +4,15 @@ export interface RegisterDto{
     password: string;
     phone?:string;
     address?:string;
+    dob?: string;
+    gender?: string;
+    ethnicity?: string;
+    profession?: string;
+    qualification?: string;
+    province?: string;
+    district?: string;
+    municipality?: string;
+    ward?: string;
 }
 
 export interface LoginDto{

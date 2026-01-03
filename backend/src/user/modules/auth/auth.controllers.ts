@@ -44,8 +44,22 @@ export async function updateProfile(req: Request, res: Response) {
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
   try {
-    const payload = req.body as { name?: string; phone?: string; address?: string; password?: string };
-    const updated = await authService.updateUser(user.id, payload);
+const payload = req.body as {
+  name?: string;
+  phone?: string | null;
+  address?: string | null;
+  password?: string;
+  dob?: string | null;
+  gender?: string | null;
+  ethnicity?: string | null;
+  profession?: string | null;
+  qualification?: string | null;
+  province?: string | null;
+  district?: string | null;
+  municipality?: string | null;
+  ward?: string | null;
+};    
+const updated = await authService.updateUser(user.id, payload);
     return res.json({ user: updated });
   } catch (err: any) {
     return res.status(400).json({ error: err.message });
