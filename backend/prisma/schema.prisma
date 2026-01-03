@@ -6,27 +6,16 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  name          String
-  password      String
-  phone         String?
-  address       String?
-  dob           DateTime?
-  gender        String?
-  ethnicity     String?
-  profession    String?
-  qualification String?
-  province      String?
-  district      String?
-  municipality  String?
-  ward          String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  @@map("users")
+model User{
+    id String @id @default(uuid())
+    email String @unique
+    name String
+    password    String
+    phone String?
+    address String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime  @updatedAt 
+    @@map("users")
 }
 
 model Notice {
