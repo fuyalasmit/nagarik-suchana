@@ -22,6 +22,44 @@ export interface DashboardStats {
   resolvedGrievances: number;
 }
 
+// Notice types
+export type NoticeStatus = 'draft' | 'published' | 'archived';
+export type ProcessingStatus = 'pending' | 'processing' | 'completed' | 'failed';
+
+export interface Notice {
+  id: string;
+  title: string;
+  tags: string[];
+  description?: string;
+  status: NoticeStatus;
+  url?: string;  // Document URL if uploaded
+  
+  // OCR and AI extracted fields
+  ocrText?: string;
+  ocrConfidence?: number;
+  extractedFields?: Record<string, any>;
+  processingStatus: ProcessingStatus;
+  
+  // Location fields
+  province?: string;
+  district?: string;
+  municipality?: string;
+  ward?: string;
+  
+  // Date fields
+  effectiveFrom?: string;
+  deadline?: string;
+  
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NoticeCardProps {
+  notice: Notice;
+  onPress: (id: string) => void;
+}
+
+// Grievance types
 export type GrievanceCategory = 
   | 'infrastructure' 
   | 'sanitation' 

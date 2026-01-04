@@ -27,6 +27,10 @@ import { EyeIcon, EyeOffIcon, CheckIcon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Palette } from "@/constants/theme";
 import { API_CONFIG } from "@/constants/api";
+import {
+    registerForPushNotificationsAsync,
+    savePushTokenToBackend,
+} from "@/services/notificationService";
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -80,6 +84,13 @@ export default function LoginScreen() {
 
             setMessage(t("auth.loginSuccess"));
             setIsError(false);
+
+            // Register for push notifications and save token
+            registerForPushNotificationsAsync().then((pushToken) => {
+                if (pushToken) {
+                    savePushTokenToBackend(pushToken, email.trim().toLowerCase(), password);
+                }
+            });
 
             // Store user token and navigate to user dashboard
             // TODO: Store token in secure storage

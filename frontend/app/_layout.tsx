@@ -5,9 +5,9 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { View, ActivityIndicator } from "react-native";
 import "react-native-reanimated";
 import "../global.css";
@@ -20,11 +20,20 @@ import {
   getCurrentLanguage,
 } from "@/config/i18n";
 import { Palette } from "@/constants/theme";
+import {
+  addNotificationReceivedListener,
+  addNotificationResponseReceivedListener,
+  removeNotificationSubscription,
+  getNotificationData,
+} from "@/services/notificationService";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
+  const notificationListener = useRef<{ remove: () => void } | null>(null);
+  const responseListener = useRef<{ remove: () => void } | null>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -42,6 +51,30 @@ export default function RootLayout() {
     });
     return unsubscribe;
   }, []);
+
+  // Set up notification listeners
+  useEffect(() => {
+    // Handle notifications received while app is foregrounded
+    notificationListener.current = addNotificationReceivedListener((notification) => {
+      console.log("Notification received:", notification);
+    });
+
+    // Handle notification taps
+    responseListener.current = addNotificationResponseReceivedListener((response) => {
+      const data = getNotificationData(response);
+      console.log("Notification tapped:", data);
+
+      // Navigate to notice detail if noticeId is present
+      if (data.noticeId && data.type === "notice_published") {
+        router.push(`/user/notice/${data.noticeId}`);
+      }
+    });
+
+    return () => {
+      removeNotificationSubscription(notificationListener.current);
+      removeNotificationSubscription(responseListener.current);
+    };
+  }, [router]);
 
   if (!isI18nInitialized) {
     return (

@@ -77,3 +77,20 @@ export async function deleteAccount(req: Request, res: Response) {
     return res.status(400).json({ error: err.message });
   }
 }
+
+export async function updatePushToken(req: Request, res: Response) {
+  const user = req.authUser;
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  try {
+    const { pushToken } = req.body as { pushToken: string };
+    if (!pushToken) {
+      return res.status(400).json({ error: 'Push token is required' });
+    }
+
+    const updated = await authService.updatePushToken(user.id, pushToken);
+    return res.json({ success: true, user: updated });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+}

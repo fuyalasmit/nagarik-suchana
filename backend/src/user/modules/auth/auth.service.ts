@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import prisma from "../../config/database";
 import { RegisterDto } from "./auth.types";
+import { isValidExpoPushToken } from "../../../services/notification.service";
 
 const Salt = 10;
 
@@ -153,4 +154,23 @@ export async function updateUser(
 export async function deleteUser(id: string) {
   await prisma.user.delete({ where: { id } });
   return true;
+}
+
+export async function updatePushToken(userId: string, pushToken: string) {
+  if (!isValidExpoPushToken(pushToken)) {
+    throw new Error("Invalid push token format");
+  }
+
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { pushToken },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      pushToken: true,
+    },
+  });
+
+  return user;
 }

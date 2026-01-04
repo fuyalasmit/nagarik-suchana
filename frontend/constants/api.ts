@@ -16,6 +16,7 @@ export const API_CONFIG = {
         login: `${API_BASE_URL}/api/auth/login`,
         register: `${API_BASE_URL}/api/auth/register`,
         profile: `${API_BASE_URL}/api/auth/profile`,
+        pushToken: `${API_BASE_URL}/api/auth/push-token`,
     },
 
     // Admin endpoints
