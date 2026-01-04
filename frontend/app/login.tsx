@@ -21,12 +21,13 @@ import {
   CheckboxLabel,
   Spinner,
 } from '@gluestack-ui/themed';
-import { Link as ExpoLink } from 'expo-router';
+import { Link as ExpoLink, useRouter } from 'expo-router';
 import { Platform, ScrollView, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
 import { EyeIcon, EyeOffIcon, CheckIcon } from 'lucide-react-native';
 import { Palette } from '@/constants/theme';
 
 export default function LoginScreen() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -42,6 +43,16 @@ export default function LoginScreen() {
     if (!email.trim() || !password.trim()) {
       setMessage('Please enter email and password');
       setIsError(true);
+      return;
+    }
+
+    // Check for admin credentials
+    if (email.trim().toLowerCase() === 'admin@gmail.com' && password === 'admin123') {
+      setMessage('Admin login successful! Redirecting...');
+      setIsError(false);
+      setTimeout(() => {
+        router.push('/admin/dashboard');
+      }, 1000);
       return;
     }
 
@@ -339,7 +350,7 @@ export default function LoginScreen() {
         {/* Footer */}
         <HStack space="sm" style={{ justifyContent: 'center', marginTop: 24, alignItems: 'center' }}>
           <TouchableOpacity>
-            <ExpoLink href="/admin/upload">
+            <ExpoLink href="/admin/dashboard">
               <Text size="sm" style={{ color: '#9CA3AF', fontWeight: '500' }}>Admin Portal</Text>
             </ExpoLink>
           </TouchableOpacity>

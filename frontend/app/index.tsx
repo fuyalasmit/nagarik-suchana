@@ -308,17 +308,6 @@ export default function RegisterScreen() {
                 </ExpoLink>
               </TouchableOpacity>
             </HStack>
-
-            {/* Admin Link */}
-            <Box style={{ alignItems: 'center', marginTop: 16 }}>
-              <TouchableOpacity>
-                <ExpoLink href="/admin/upload">
-                  <Text size="sm" style={{ color: '#9CA3AF', fontWeight: '500' }}>
-                    Admin Portal →
-                  </Text>
-                </ExpoLink>
-              </TouchableOpacity>
-            </Box>
           </VStack>
         </Card>
       </ScrollView>
