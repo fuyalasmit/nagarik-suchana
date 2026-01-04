@@ -1,10 +1,11 @@
 import React from "react";
-import { ScrollView, Alert } from "react-native";
-import { Box, VStack, HStack, Heading, Text } from "@gluestack-ui/themed";
+import { ScrollView, Alert, TouchableOpacity } from "react-native";
+import { Box, VStack, HStack, Heading, Text, Spinner } from "@gluestack-ui/themed";
 import { useRouter } from "expo-router";
 import { StatCard } from "@/components/admin/StatCard";
 import { QuickActionButton } from "@/components/admin/QuickActionButton";
 import { ActivityItem } from "@/components/admin/ActivityItem";
+import { NoticeCard } from "@/components/admin/NoticeCard";
 import {
   municipalityInfo,
   dashboardStats,
@@ -12,12 +13,14 @@ import {
   AdminColors,
 } from "@/data/admin/mockData";
 import { useTranslation } from "react-i18next";
+import { useNotices } from "@/hooks/useNotices";
 
 const Colors = AdminColors;
 
 export default function DashboardScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { notices, isLoading, error, refetch } = useNotices(5);
 
   const handleQuickAction = (action: string) => {
     switch (action) {
@@ -34,6 +37,10 @@ export default function DashboardScreen() {
         router.push("/admin/settings");
         break;
     }
+  };
+
+  const handleNoticePress = (id: string) => {
+    router.push(`/admin/notice/${id}`);
   };
 
   return (
@@ -234,6 +241,95 @@ export default function DashboardScreen() {
             <Text style={{ fontSize: 12, color: "#6B7280" }}>Total</Text>
           </VStack>
         </HStack>
+      </Box>
+
+      {/* Recent Notices */}
+      <Box
+        style={{
+          backgroundColor: "white",
+          borderRadius: 16,
+          padding: 20,
+          marginBottom: 24,
+        }}
+      >
+        <HStack
+          style={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 12,
+          }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: "700", color: "#1F2937" }}>
+            Recent Notices
+          </Text>
+          <Text
+            style={{
+              fontSize: 13,
+              fontWeight: "600",
+              color: Colors.primaryDark,
+            }}
+            onPress={() => handleQuickAction("viewNotices")}
+          >
+            View All
+          </Text>
+        </HStack>
+
+        {isLoading ? (
+          <Box style={{ alignItems: "center", paddingVertical: 20 }}>
+            <Spinner color={Colors.primary} />
+          </Box>
+        ) : error ? (
+          <Box
+            style={{
+              backgroundColor: "#FEE2E2",
+              padding: 16,
+              borderRadius: 12,
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: "#991B1B", marginBottom: 8 }}>{error}</Text>
+            <TouchableOpacity
+              onPress={refetch}
+              style={{
+                backgroundColor: Colors.primary,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "600" }}>Retry</Text>
+            </TouchableOpacity>
+          </Box>
+        ) : notices.length === 0 ? (
+          <Box style={{ alignItems: "center", paddingVertical: 20 }}>
+            <Text style={{ color: "#6B7280", marginBottom: 12 }}>
+              No notices created yet
+            </Text>
+            <TouchableOpacity
+              onPress={() => handleQuickAction("newNotice")}
+              style={{
+                backgroundColor: Colors.primary,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "600" }}>
+                Create Notice
+              </Text>
+            </TouchableOpacity>
+          </Box>
+        ) : (
+          <VStack>
+            {notices.map((notice) => (
+              <NoticeCard
+                key={notice.id}
+                notice={notice}
+                onPress={handleNoticePress}
+              />
+            ))}
+          </VStack>
+        )}
       </Box>
 
       {/* Recent Activity */}

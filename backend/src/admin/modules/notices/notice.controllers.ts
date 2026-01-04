@@ -5,6 +5,7 @@ import path from 'path';
 import * as noticeService from './notice.service';
 import { CreateNoticeDto, UpdateNoticeDto } from './notice.types';
 import { performOCRFromBuffer, extractFieldsWithLLM } from './notice.processor';
+import { notifyNoticePublished } from '../../../services/notification.service';
 
 export async function uploadFile(req: Request, res: Response) {
   try {
@@ -103,6 +104,13 @@ export async function createNotice(req: Request, res: Response) {
     
     const notice = await noticeService.createNotice(payload);
     
+    // Send push notification if notice is published
+    if (notice.status === 'published') {
+      notifyNoticePublished(notice).catch((err) => {
+        console.error('Failed to send notification:', err);
+      });
+    }
+    
     return res.status(201).json({ notice });
   } catch (err: any) {
     return res.status(400).json({ error: err.message });
@@ -147,6 +155,14 @@ export async function updateNotice(req: Request, res: Response) {
   try {
     const payload = req.body as UpdateNoticeDto;
     
+    // Get existing notice to check status change
+    let existingNotice;
+    try {
+      existingNotice = await noticeService.getNoticeById(req.params.id);
+    } catch (err) {
+      return res.status(404).json({ error: 'Notice not found' });
+    }
+    
     // Handle tags - convert comma-separated string to array if needed
     if (payload.tags) {
       if (typeof payload.tags === 'string') {
@@ -177,18 +193,13 @@ export async function updateNotice(req: Request, res: Response) {
         });
       }
 
-      // Get existing notice to delete old file
-      try {
-        const existingNotice = await noticeService.getNoticeById(req.params.id);
-        if (existingNotice.url) {
-          try {
-            await del(existingNotice.url, { token: blobToken });
-          } catch (err) {
-            console.error('Failed to delete old blob:', err);
-          }
+      // Delete old file if exists
+      if (existingNotice.url) {
+        try {
+          await del(existingNotice.url, { token: blobToken });
+        } catch (err) {
+          console.error('Failed to delete old blob:', err);
         }
-      } catch (err) {
-        // Notice might not exist, continue with upload
       }
 
       // Upload new file
@@ -204,6 +215,16 @@ export async function updateNotice(req: Request, res: Response) {
     }
     
     const notice = await noticeService.updateNotice(req.params.id, payload);
+    
+    // Send push notification if status changed to published
+    const wasNotPublished = existingNotice.status !== 'published';
+    const isNowPublished = notice.status === 'published';
+    if (wasNotPublished && isNowPublished) {
+      notifyNoticePublished(notice).catch((err) => {
+        console.error('Failed to send notification:', err);
+      });
+    }
+    
     return res.json({ notice });
   } catch (err: any) {
     return res.status(400).json({ error: err.message });

@@ -23,6 +23,7 @@ model User {
   district      String?
   municipality  String?
   ward          String?
+  pushToken     String?   // Expo push notification token
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

@@ -77,6 +77,12 @@ export default function UserLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="notice/[id]"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
