@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { 
-  Box, 
-  VStack, 
-  HStack, 
-  Heading, 
-  Text, 
+import React, { useState } from "react";
+import { ScrollView, TouchableOpacity, Alert } from "react-native";
+import {
+  Box,
+  VStack,
+  HStack,
+  Heading,
+  Text,
   Input,
   InputField,
   Button,
@@ -25,44 +25,75 @@ import {
   SelectDragIndicator,
   SelectItem,
   Spinner,
-} from '@gluestack-ui/themed';
-import { User, Edit, Save, MapPin, Phone, Mail, Calendar, Briefcase } from 'lucide-react-native';
-import { Palette } from '@/constants/theme';
+} from "@gluestack-ui/themed";
+import {
+  User,
+  Edit,
+  Save,
+  MapPin,
+  Phone,
+  Mail,
+  Calendar,
+  Briefcase,
+  Globe,
+} from "lucide-react-native";
+import { Palette } from "@/constants/theme";
+import { useTranslation } from "react-i18next";
+import { changeLanguage } from "@/config/i18n";
 
 // Mock user data
 const mockUser = {
-  id: 'user123',
-  name: 'राम बहादुर श्रेष्ठ',
-  email: 'ram.shrestha@email.com',
-  phone: '+977-9841234567',
-  address: 'Bharatpur-5, Chitwan',
-  dob: '1990-05-15',
-  gender: 'Male',
-  ethnicity: 'Newar',
-  profession: 'Teacher',
-  qualification: 'Bachelor',
-  province: 'Bagmati',
-  district: 'Chitwan',
-  municipality: 'Bharatpur Metropolitan',
-  ward: '5',
+  id: "user123",
+  name: "राम बहादुर श्रेष्ठ",
+  email: "ram.shrestha@email.com",
+  phone: "+977-9841234567",
+  address: "Bharatpur-5, Chitwan",
+  dob: "1990-05-15",
+  gender: "Male",
+  ethnicity: "Newar",
+  profession: "Teacher",
+  qualification: "Bachelor",
+  province: "Bagmati",
+  district: "Chitwan",
+  municipality: "Bharatpur Metropolitan",
+  ward: "5",
 };
 
 const provinces = [
-  'Province 1', 'Madhesh Province', 'Bagmati Province', 'Gandaki Province',
-  'Lumbini Province', 'Karnali Province', 'Sudurpashchim Province'
+  "Province 1",
+  "Madhesh Province",
+  "Bagmati Province",
+  "Gandaki Province",
+  "Lumbini Province",
+  "Karnali Province",
+  "Sudurpashchim Province",
 ];
 
 const qualifications = [
-  'SLC/SEE', '+2/Intermediate', 'Bachelor', 'Master', 'PhD'
+  "SLC/SEE",
+  "+2/Intermediate",
+  "Bachelor",
+  "Master",
+  "PhD",
 ];
 
-const genders = ['Male', 'Female', 'Other'];
+const genders = ["Male", "Female", "Other"];
 
 const ethnicities = [
-  'Brahmin', 'Chhetri', 'Newar', 'Tamang', 'Magar', 'Tharu', 'Rai', 'Limbu', 'Gurung', 'Other'
+  "Brahmin",
+  "Chhetri",
+  "Newar",
+  "Tamang",
+  "Magar",
+  "Tharu",
+  "Rai",
+  "Limbu",
+  "Gurung",
+  "Other",
 ];
 
 export default function ProfileScreen() {
+  const { t, i18n } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [userProfile, setUserProfile] = useState(mockUser);
@@ -70,31 +101,32 @@ export default function ProfileScreen() {
 
   const handleSave = async () => {
     setErrors({});
-    
+
     // Basic validation
     const newErrors: Record<string, string> = {};
-    if (!userProfile.name.trim()) newErrors.name = 'Name is required';
-    if (!userProfile.email.trim()) newErrors.email = 'Email is required';
-    if (!userProfile.phone.trim()) newErrors.phone = 'Phone is required';
-    
+    if (!userProfile.name.trim()) newErrors.name = t("validation.nameRequired");
+    if (!userProfile.email.trim())
+      newErrors.email = t("validation.emailRequired");
+    if (!userProfile.phone.trim()) newErrors.phone = t("validation.required");
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
       // Here you would typically send to backend API
       // const response = await fetch('/api/auth/profile', { method: 'PUT', ... });
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      Alert.alert('Success', 'Profile updated successfully!');
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      Alert.alert(t("common.success"), t("profile.updateSuccess"));
       setIsEditing(false);
     } catch (error) {
-      Alert.alert('Error', 'Failed to update profile. Please try again.');
+      Alert.alert(t("common.error"), t("profile.updateFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -107,39 +139,38 @@ export default function ProfileScreen() {
   };
 
   const updateField = (field: string, value: string) => {
-    setUserProfile(prev => ({ ...prev, [field]: value }));
+    setUserProfile((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: '#F9FAFB' }}
+      style={{ flex: 1, backgroundColor: "#F9FAFB" }}
       contentContainerStyle={{ padding: 20, paddingTop: 50, paddingBottom: 30 }}
       showsVerticalScrollIndicator={false}
     >
       {/* Header */}
       <VStack style={{ marginBottom: 24 }}>
-        <HStack style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+        <HStack
+          style={{ justifyContent: "space-between", alignItems: "center" }}
+        >
           <VStack>
-            <Heading
-              size="2xl"
-              style={{ color: '#1F2937', fontWeight: '800' }}
-            >
-              My Profile
+            <Heading size="2xl" style={{ color: "#1F2937", fontWeight: "800" }}>
+              {t("profile.myProfile")}
             </Heading>
-            <Text style={{ fontSize: 14, color: '#6B7280' }}>
-              Manage your personal information
+            <Text style={{ fontSize: 14, color: "#6B7280" }}>
+              {t("profile.manageInfo")}
             </Text>
           </VStack>
-          <TouchableOpacity 
-            onPress={() => isEditing ? handleCancel() : setIsEditing(true)}
+          <TouchableOpacity
+            onPress={() => (isEditing ? handleCancel() : setIsEditing(true))}
             disabled={isLoading}
           >
             <Box
               style={{
-                backgroundColor: isEditing ? '#EF4444' : Palette.primary,
+                backgroundColor: isEditing ? "#EF4444" : Palette.primary,
                 borderRadius: 12,
                 padding: 12,
               }}
@@ -153,7 +184,7 @@ export default function ProfileScreen() {
       {/* Profile Card */}
       <Card
         style={{
-          backgroundColor: 'white',
+          backgroundColor: "white",
           borderRadius: 16,
           padding: 24,
           marginBottom: 24,
@@ -161,10 +192,10 @@ export default function ProfileScreen() {
       >
         <VStack space="lg">
           {/* Avatar and Basic Info */}
-          <HStack space="md" style={{ alignItems: 'center' }}>
+          <HStack space="md" style={{ alignItems: "center" }}>
             <Box
               style={{
-                backgroundColor: Palette.primary + '20',
+                backgroundColor: Palette.primary + "20",
                 borderRadius: 50,
                 padding: 20,
               }}
@@ -172,15 +203,17 @@ export default function ProfileScreen() {
               <User size={40} color={Palette.primary} />
             </Box>
             <VStack style={{ flex: 1 }}>
-              <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F2937' }}>
+              <Text
+                style={{ fontSize: 20, fontWeight: "700", color: "#1F2937" }}
+              >
                 {userProfile.name}
               </Text>
-              <Text style={{ fontSize: 14, color: '#6B7280' }}>
+              <Text style={{ fontSize: 14, color: "#6B7280" }}>
                 {userProfile.email}
               </Text>
-              <HStack space="xs" style={{ alignItems: 'center', marginTop: 4 }}>
+              <HStack space="xs" style={{ alignItems: "center", marginTop: 4 }}>
                 <MapPin size={12} color="#9CA3AF" />
-                <Text style={{ fontSize: 12, color: '#9CA3AF' }}>
+                <Text style={{ fontSize: 12, color: "#9CA3AF" }}>
                   {userProfile.municipality}, Ward {userProfile.ward}
                 </Text>
               </HStack>
@@ -189,21 +222,23 @@ export default function ProfileScreen() {
 
           {/* Personal Information */}
           <VStack space="md">
-            <Text style={{ fontSize: 16, fontWeight: '700', color: '#1F2937' }}>
-              Personal Information
+            <Text style={{ fontSize: 16, fontWeight: "700", color: "#1F2937" }}>
+              {t("profile.personalInfo")}
             </Text>
-            
+
             {/* Name */}
             <FormControl isInvalid={!!errors.name}>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
-                  Full Name
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
+                  {t("profile.fullName")}
                 </FormControlLabelText>
               </FormControlLabel>
               <Input variant="outline" isDisabled={!isEditing}>
                 <InputField
                   value={userProfile.name}
-                  onChangeText={(text) => updateField('name', text)}
+                  onChangeText={(text) => updateField("name", text)}
                   style={{ fontSize: 14 }}
                 />
               </Input>
@@ -212,14 +247,16 @@ export default function ProfileScreen() {
             {/* Email */}
             <FormControl isInvalid={!!errors.email}>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
-                  Email Address
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
+                  {t("auth.email")}
                 </FormControlLabelText>
               </FormControlLabel>
               <Input variant="outline" isDisabled={!isEditing}>
                 <InputField
                   value={userProfile.email}
-                  onChangeText={(text) => updateField('email', text)}
+                  onChangeText={(text) => updateField("email", text)}
                   keyboardType="email-address"
                   style={{ fontSize: 14 }}
                 />
@@ -229,14 +266,16 @@ export default function ProfileScreen() {
             {/* Phone */}
             <FormControl isInvalid={!!errors.phone}>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
-                  Phone Number
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
+                  {t("profile.phone")}
                 </FormControlLabelText>
               </FormControlLabel>
               <Input variant="outline" isDisabled={!isEditing}>
                 <InputField
                   value={userProfile.phone}
-                  onChangeText={(text) => updateField('phone', text)}
+                  onChangeText={(text) => updateField("phone", text)}
                   keyboardType="phone-pad"
                   style={{ fontSize: 14 }}
                 />
@@ -246,14 +285,16 @@ export default function ProfileScreen() {
             {/* Date of Birth */}
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
-                  Date of Birth
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
+                  {t("profile.dateOfBirth")}
                 </FormControlLabelText>
               </FormControlLabel>
               <Input variant="outline" isDisabled={!isEditing}>
                 <InputField
                   value={userProfile.dob}
-                  onChangeText={(text) => updateField('dob', text)}
+                  onChangeText={(text) => updateField("dob", text)}
                   placeholder="YYYY-MM-DD"
                   style={{ fontSize: 14 }}
                 />
@@ -263,14 +304,16 @@ export default function ProfileScreen() {
             {/* Gender */}
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
-                  Gender
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
+                  {t("profile.gender")}
                 </FormControlLabelText>
               </FormControlLabel>
               {isEditing ? (
                 <Select
                   selectedValue={userProfile.gender}
-                  onValueChange={(value) => updateField('gender', value)}
+                  onValueChange={(value) => updateField("gender", value)}
                 >
                   <SelectTrigger variant="outline">
                     <SelectInput />
@@ -283,14 +326,21 @@ export default function ProfileScreen() {
                         <SelectDragIndicator />
                       </SelectDragIndicatorWrapper>
                       {genders.map((gender) => (
-                        <SelectItem key={gender} label={gender} value={gender} />
+                        <SelectItem
+                          key={gender}
+                          label={gender}
+                          value={gender}
+                        />
                       ))}
                     </SelectContent>
                   </SelectPortal>
                 </Select>
               ) : (
                 <Input variant="outline" isDisabled>
-                  <InputField value={userProfile.gender} style={{ fontSize: 14 }} />
+                  <InputField
+                    value={userProfile.gender}
+                    style={{ fontSize: 14 }}
+                  />
                 </Input>
               )}
             </FormControl>
@@ -298,14 +348,16 @@ export default function ProfileScreen() {
             {/* Ethnicity */}
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
                   Ethnicity
                 </FormControlLabelText>
               </FormControlLabel>
               {isEditing ? (
                 <Select
                   selectedValue={userProfile.ethnicity}
-                  onValueChange={(value) => updateField('ethnicity', value)}
+                  onValueChange={(value) => updateField("ethnicity", value)}
                 >
                   <SelectTrigger variant="outline">
                     <SelectInput />
@@ -318,14 +370,21 @@ export default function ProfileScreen() {
                         <SelectDragIndicator />
                       </SelectDragIndicatorWrapper>
                       {ethnicities.map((ethnicity) => (
-                        <SelectItem key={ethnicity} label={ethnicity} value={ethnicity} />
+                        <SelectItem
+                          key={ethnicity}
+                          label={ethnicity}
+                          value={ethnicity}
+                        />
                       ))}
                     </SelectContent>
                   </SelectPortal>
                 </Select>
               ) : (
                 <Input variant="outline" isDisabled>
-                  <InputField value={userProfile.ethnicity} style={{ fontSize: 14 }} />
+                  <InputField
+                    value={userProfile.ethnicity}
+                    style={{ fontSize: 14 }}
+                  />
                 </Input>
               )}
             </FormControl>
@@ -333,21 +392,23 @@ export default function ProfileScreen() {
 
           {/* Professional Information */}
           <VStack space="md">
-            <Text style={{ fontSize: 16, fontWeight: '700', color: '#1F2937' }}>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: "#1F2937" }}>
               Professional Information
             </Text>
-            
+
             {/* Profession */}
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
                   Profession
                 </FormControlLabelText>
               </FormControlLabel>
               <Input variant="outline" isDisabled={!isEditing}>
                 <InputField
                   value={userProfile.profession}
-                  onChangeText={(text) => updateField('profession', text)}
+                  onChangeText={(text) => updateField("profession", text)}
                   style={{ fontSize: 14 }}
                 />
               </Input>
@@ -356,14 +417,16 @@ export default function ProfileScreen() {
             {/* Qualification */}
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
                   Qualification
                 </FormControlLabelText>
               </FormControlLabel>
               {isEditing ? (
                 <Select
                   selectedValue={userProfile.qualification}
-                  onValueChange={(value) => updateField('qualification', value)}
+                  onValueChange={(value) => updateField("qualification", value)}
                 >
                   <SelectTrigger variant="outline">
                     <SelectInput />
@@ -383,7 +446,10 @@ export default function ProfileScreen() {
                 </Select>
               ) : (
                 <Input variant="outline" isDisabled>
-                  <InputField value={userProfile.qualification} style={{ fontSize: 14 }} />
+                  <InputField
+                    value={userProfile.qualification}
+                    style={{ fontSize: 14 }}
+                  />
                 </Input>
               )}
             </FormControl>
@@ -391,21 +457,23 @@ export default function ProfileScreen() {
 
           {/* Location Information */}
           <VStack space="md">
-            <Text style={{ fontSize: 16, fontWeight: '700', color: '#1F2937' }}>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: "#1F2937" }}>
               Location Information
             </Text>
-            
+
             {/* Address */}
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
                   Address
                 </FormControlLabelText>
               </FormControlLabel>
               <Input variant="outline" isDisabled={!isEditing}>
                 <InputField
                   value={userProfile.address}
-                  onChangeText={(text) => updateField('address', text)}
+                  onChangeText={(text) => updateField("address", text)}
                   style={{ fontSize: 14 }}
                 />
               </Input>
@@ -414,14 +482,16 @@ export default function ProfileScreen() {
             {/* Province */}
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
                   Province
                 </FormControlLabelText>
               </FormControlLabel>
               {isEditing ? (
                 <Select
                   selectedValue={userProfile.province}
-                  onValueChange={(value) => updateField('province', value)}
+                  onValueChange={(value) => updateField("province", value)}
                 >
                   <SelectTrigger variant="outline">
                     <SelectInput />
@@ -434,14 +504,21 @@ export default function ProfileScreen() {
                         <SelectDragIndicator />
                       </SelectDragIndicatorWrapper>
                       {provinces.map((province) => (
-                        <SelectItem key={province} label={province} value={province} />
+                        <SelectItem
+                          key={province}
+                          label={province}
+                          value={province}
+                        />
                       ))}
                     </SelectContent>
                   </SelectPortal>
                 </Select>
               ) : (
                 <Input variant="outline" isDisabled>
-                  <InputField value={userProfile.province} style={{ fontSize: 14 }} />
+                  <InputField
+                    value={userProfile.province}
+                    style={{ fontSize: 14 }}
+                  />
                 </Input>
               )}
             </FormControl>
@@ -449,14 +526,16 @@ export default function ProfileScreen() {
             {/* District */}
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
                   District
                 </FormControlLabelText>
               </FormControlLabel>
               <Input variant="outline" isDisabled={!isEditing}>
                 <InputField
                   value={userProfile.district}
-                  onChangeText={(text) => updateField('district', text)}
+                  onChangeText={(text) => updateField("district", text)}
                   style={{ fontSize: 14 }}
                 />
               </Input>
@@ -465,14 +544,16 @@ export default function ProfileScreen() {
             {/* Municipality */}
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
                   Municipality
                 </FormControlLabelText>
               </FormControlLabel>
               <Input variant="outline" isDisabled={!isEditing}>
                 <InputField
                   value={userProfile.municipality}
-                  onChangeText={(text) => updateField('municipality', text)}
+                  onChangeText={(text) => updateField("municipality", text)}
                   style={{ fontSize: 14 }}
                 />
               </Input>
@@ -481,14 +562,16 @@ export default function ProfileScreen() {
             {/* Ward */}
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
+                <FormControlLabelText
+                  style={{ fontWeight: "600", color: "#374151" }}
+                >
                   Ward Number
                 </FormControlLabelText>
               </FormControlLabel>
               <Input variant="outline" isDisabled={!isEditing}>
                 <InputField
                   value={userProfile.ward}
-                  onChangeText={(text) => updateField('ward', text)}
+                  onChangeText={(text) => updateField("ward", text)}
                   keyboardType="numeric"
                   style={{ fontSize: 14 }}
                 />
@@ -505,7 +588,7 @@ export default function ProfileScreen() {
                 style={{ flex: 1 }}
                 isDisabled={isLoading}
               >
-                <ButtonText>Cancel</ButtonText>
+                <ButtonText>{t("common.cancel")}</ButtonText>
               </Button>
               <Button
                 onPress={handleSave}
@@ -515,11 +598,100 @@ export default function ProfileScreen() {
                 {isLoading ? (
                   <Spinner color="white" />
                 ) : (
-                  <ButtonText style={{ color: 'white' }}>Save Changes</ButtonText>
+                  <ButtonText style={{ color: "white" }}>
+                    {t("common.save")}
+                  </ButtonText>
                 )}
               </Button>
             </HStack>
           )}
+        </VStack>
+      </Card>
+
+      {/* Language Settings */}
+      <Card
+        style={{
+          backgroundColor: "white",
+          borderRadius: 16,
+          padding: 24,
+          marginBottom: 24,
+        }}
+      >
+        <VStack space="md">
+          <HStack space="md" style={{ alignItems: "center" }}>
+            <Box
+              style={{
+                backgroundColor: Palette.primary + "20",
+                borderRadius: 8,
+                padding: 10,
+              }}
+            >
+              <Globe size={20} color={Palette.primary} />
+            </Box>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: "#1F2937" }}>
+              {t("settings.language")}
+            </Text>
+          </HStack>
+
+          <HStack space="md" style={{ marginTop: 8 }}>
+            <TouchableOpacity
+              onPress={() => changeLanguage("en")}
+              style={{ flex: 1 }}
+            >
+              <Box
+                style={{
+                  backgroundColor:
+                    i18n.language === "en" ? Palette.primary + "15" : "white",
+                  borderRadius: 12,
+                  padding: 16,
+                  alignItems: "center",
+                  borderWidth: 2,
+                  borderColor:
+                    i18n.language === "en" ? Palette.primary : "#E5E7EB",
+                }}
+              >
+                <Text style={{ fontSize: 24, marginBottom: 4 }}>🇺🇸</Text>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "600",
+                    color: i18n.language === "en" ? Palette.primary : "#1F2937",
+                  }}
+                >
+                  {t("settings.english")}
+                </Text>
+              </Box>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => changeLanguage("ne")}
+              style={{ flex: 1 }}
+            >
+              <Box
+                style={{
+                  backgroundColor:
+                    i18n.language === "ne" ? Palette.primary + "15" : "white",
+                  borderRadius: 12,
+                  padding: 16,
+                  alignItems: "center",
+                  borderWidth: 2,
+                  borderColor:
+                    i18n.language === "ne" ? Palette.primary : "#E5E7EB",
+                }}
+              >
+                <Text style={{ fontSize: 24, marginBottom: 4 }}>🇳🇵</Text>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "600",
+                    color: i18n.language === "ne" ? Palette.primary : "#1F2937",
+                  }}
+                >
+                  {t("settings.nepali")}
+                </Text>
+              </Box>
+            </TouchableOpacity>
+          </HStack>
         </VStack>
       </Card>
     </ScrollView>
