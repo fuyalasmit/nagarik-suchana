@@ -40,4 +40,12 @@ router.put(
 // Delete account (protected)
 router.delete('/profile', basicAuth, authController.deleteAccount);
 
+// Update push token (protected)
+router.put(
+  '/push-token',
+  basicAuth,
+  [body('pushToken').notEmpty().isString()],
+  authController.updatePushToken
+);
+
 export default router;
