@@ -63,7 +63,7 @@ export default function LoginScreen() {
     };
 
     try {
-      const res = await fetch('http://192.168.1.78:3001/api/auth/login', {
+      const res = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -75,9 +75,14 @@ export default function LoginScreen() {
         throw new Error(json.error || 'Login failed');
       }
 
-      setMessage('Login successful!');
+      setMessage('Login successful! Redirecting...');
       setIsError(false);
-      // TODO: Store user token and navigate to home
+      
+      // Store user token and navigate to user dashboard
+      // TODO: Store token in secure storage
+      setTimeout(() => {
+        router.push('/user/dashboard');
+      }, 1000);
     } catch (err: any) {
       setMessage(err.message || 'Login failed');
       setIsError(true);

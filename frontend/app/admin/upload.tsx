@@ -81,7 +81,7 @@ export default function AdminUpload() {
           name: selectedFile.name,
         });
 
-        const res = await fetch('http://192.168.1.78:3001/api/admin/notices', {
+        const res = await fetch('http://localhost:3001/api/admin/notices', {
           method: 'POST',
           body: formData,
           headers: {
@@ -103,7 +103,7 @@ export default function AdminUpload() {
           status,
         };
 
-        const res = await fetch('http://192.168.1.78:3001/api/admin/notices', {
+        const res = await fetch('http://localhost:3001/api/admin/notices', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
