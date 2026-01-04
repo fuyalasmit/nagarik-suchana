@@ -1,316 +1,239 @@
-import React, { useState } from 'react';
-import { 
-  Box, 
-  VStack, 
-  HStack, 
-  Heading, 
-  Text, 
-  Input, 
-  InputField,
-  Button,
-  ButtonText,
-  FormControl,
-  FormControlLabel,
-  FormControlLabelText,
-  FormControlError,
-  FormControlErrorText,
-  Card,
-  Spinner,
-} from '@gluestack-ui/themed';
-import { Link as ExpoLink } from 'expo-router';
-import { Platform, ScrollView, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
-import { Palette } from '@/constants/theme';
+import React, { useEffect, useRef } from "react";
+import { View, Text, StyleSheet, Animated } from "react-native";
+import { useRouter } from "expo-router";
+import { Palette } from "@/constants/theme";
+import { hasSelectedLanguage } from "@/config/i18n";
 
-export default function RegisterScreen() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [message, setMessage] = useState<string | null>(null);
-  const [isError, setIsError] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+export default function SplashScreen() {
+  const router = useRouter();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!name.trim()) newErrors.name = 'Name is required';
-    if (!email.trim()) newErrors.email = 'Email is required';
-    if (!password.trim()) newErrors.password = 'Password is required';
-    if (password.length < 6) newErrors.password = 'Password must be at least 6 characters';
-    if (password !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  useEffect(() => {
+    // Main fade in and scale animation
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
-  const handleRegister = async () => {
-    setMessage(null);
-    setIsError(false);
-    
-    if (!validate()) return;
+    // Continuous rotation animation for the rings
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
 
-    setIsLoading(true);
-    const payload = {
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      password,
-    };
+    // Pulse animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
 
-    try {
-      const res = await fetch('http://localhost:3001/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      
-      const json = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(json.error || JSON.stringify(json.errors || json));
+    // Navigate after delay - check if language is already selected
+    const timer = setTimeout(async () => {
+      const languageSelected = await hasSelectedLanguage();
+      if (languageSelected) {
+        router.replace("/register");
+      } else {
+        router.replace("/language");
       }
+    }, 1500);
 
-      setMessage('Registration successful! You can now login.');
-      setIsError(false);
-      setName('');
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
-    } catch (err: any) {
-      setMessage(err.message || 'Registration failed');
-      setIsError(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    return () => clearTimeout(timer);
+  }, [fadeAnim, scaleAnim, router, rotateAnim, pulseAnim]);
+
+  const rotate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
+  const rotateReverse = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["360deg", "0deg"],
+  });
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1, backgroundColor: Palette.backgroundLight }}
-    >
-      <ScrollView 
-        contentContainerStyle={{ padding: 24, paddingTop: 48, paddingBottom: 24 }}
-        keyboardShouldPersistTaps="handled"
-        style={{ backgroundColor: Palette.backgroundLight }}
+    <View style={styles.container}>
+      <Animated.View
+        style={[
+          styles.content,
+          {
+            opacity: fadeAnim,
+            transform: [{ scale: scaleAnim }],
+          },
+        ]}
       >
-        {/* Header */}
-        <Box style={{ alignItems: 'center', marginBottom: 40 }}>
-          <Heading 
-            size="3xl" 
-            style={{ 
-              color: Palette.primary, 
-              fontWeight: '800',
-              textAlign: 'center',
-              marginBottom: 8,
-              letterSpacing: -0.5
-            }}
+        {/* Animated Logo */}
+        <View style={styles.logoWrapper}>
+          {/* Outer rotating ring */}
+          <Animated.View
+            style={[
+              styles.ring,
+              styles.outerRing,
+              {
+                transform: [{ rotate }],
+              },
+            ]}
+          />
+
+          {/* Inner rotating ring */}
+          <Animated.View
+            style={[
+              styles.ring,
+              styles.innerRing,
+              {
+                transform: [{ rotate: rotateReverse }],
+              },
+            ]}
+          />
+
+          {/* Center pulsing circle */}
+          <Animated.View
+            style={[
+              styles.centerCircle,
+              {
+                transform: [{ scale: pulseAnim }],
+              },
+            ]}
           >
-            नागरिक सूचना
-          </Heading>
-          <Text 
-            size="lg" 
-            style={{ 
-              color: '#6B7280', 
-              fontWeight: '500',
-              textAlign: 'center' 
-            }}
-          >
-            Community Notice Platform
-          </Text>
-        </Box>
+            <View style={styles.buildingIcon}>
+              <View style={styles.buildingTop} />
+              <View style={styles.pillarsContainer}>
+                <View style={styles.buildingPillar} />
+                <View style={styles.buildingPillar} />
+                <View style={styles.buildingPillar} />
+              </View>
+            </View>
+          </Animated.View>
+        </View>
 
-        {/* Form Card */}
-        <Card 
-          style={{ 
-            maxWidth: 440,
-            width: '100%',
-            alignSelf: 'center',
-            backgroundColor: 'white',
-            borderRadius: 20,
-            padding: 32,
-            marginBottom: 0,
-          }}
-        >
-          <VStack space="xl">
-            <Box>
-              <Heading size="2xl" style={{ color: '#1F2937', fontWeight: '700', marginBottom: 4 }}>
-                Create Account
-              </Heading>
-              <Text size="sm" style={{ color: '#6B7280' }}>
-                Join our community platform
-              </Text>
-            </Box>
-            
-            {/* Name Field */}
-            <FormControl isInvalid={!!errors.name} isRequired>
-              <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
-                  Full Name
-                </FormControlLabelText>
-              </FormControlLabel>
-              <Input 
-                variant="outline" 
-                size="lg"
-                style={{ borderColor: Palette.primary, borderWidth: 1.5 }}
-              >
-                <InputField
-                  placeholder="Enter your full name"
-                  value={name}
-                  onChangeText={setName}
-                  autoCapitalize="words"
-                  style={{ fontSize: 16 }}
-                />
-              </Input>
-              {errors.name && (
-                <FormControlError>
-                  <FormControlErrorText>{errors.name}</FormControlErrorText>
-                </FormControlError>
-              )}
-            </FormControl>
-
-            {/* Email Field */}
-            <FormControl isInvalid={!!errors.email} isRequired>
-              <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
-                  Email Address
-                </FormControlLabelText>
-              </FormControlLabel>
-              <Input 
-                variant="outline" 
-                size="lg"
-                style={{ borderColor: Palette.primary, borderWidth: 1.5 }}
-              >
-                <InputField
-                  placeholder="your@email.com"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  style={{ fontSize: 16 }}
-                />
-              </Input>
-              {errors.email && (
-                <FormControlError>
-                  <FormControlErrorText>{errors.email}</FormControlErrorText>
-                </FormControlError>
-              )}
-            </FormControl>
-
-            {/* Password Field */}
-            <FormControl isInvalid={!!errors.password} isRequired>
-              <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
-                  Password
-                </FormControlLabelText>
-              </FormControlLabel>
-              <Input 
-                variant="outline" 
-                size="lg"
-                style={{ borderColor: Palette.primary, borderWidth: 1.5 }}
-              >
-                <InputField
-                  placeholder="Minimum 6 characters"
-                  value={password}
-                  onChangeText={setPassword}
-                  type="password"
-                  autoCapitalize="none"
-                  style={{ fontSize: 16 }}
-                />
-              </Input>
-              {errors.password && (
-                <FormControlError>
-                  <FormControlErrorText>{errors.password}</FormControlErrorText>
-                </FormControlError>
-              )}
-            </FormControl>
-
-            {/* Confirm Password Field */}
-            <FormControl isInvalid={!!errors.confirmPassword} isRequired>
-              <FormControlLabel>
-                <FormControlLabelText style={{ fontWeight: '600', color: '#374151' }}>
-                  Confirm Password
-                </FormControlLabelText>
-              </FormControlLabel>
-              <Input 
-                variant="outline" 
-                size="lg"
-                style={{ borderColor: Palette.primary, borderWidth: 1.5 }}
-              >
-                <InputField
-                  placeholder="Re-enter your password"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  type="password"
-                  autoCapitalize="none"
-                  style={{ fontSize: 16 }}
-                />
-              </Input>
-              {errors.confirmPassword && (
-                <FormControlError>
-                  <FormControlErrorText>{errors.confirmPassword}</FormControlErrorText>
-                </FormControlError>
-              )}
-            </FormControl>
-
-            {/* Message Display */}
-            {message && (
-              <Box 
-                style={{ 
-                  padding: 12, 
-                  borderRadius: 12, 
-                  backgroundColor: isError ? '#FEE2E2' : '#D1FAE5',
-                  borderWidth: 1,
-                  borderColor: isError ? '#FCA5A5' : '#6EE7B7'
-                }}
-              >
-                <Text style={{ color: isError ? '#991B1B' : '#065F46', fontWeight: '500' }}>
-                  {message}
-                </Text>
-              </Box>
-            )}
-
-            {/* Register Button */}
-            <Button 
-              size="lg" 
-              onPress={handleRegister}
-              isDisabled={isLoading}
-              style={{ 
-                backgroundColor: Palette.primary,
-                borderRadius: 12,
-                height: 56,
-                shadowColor: Palette.primary,
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: 4,
-              }}
-            >
-              {isLoading ? (
-                <Spinner color="white" />
-              ) : (
-                <ButtonText style={{ fontSize: 18, fontWeight: '700', color: '#1F2937' }}>
-                  Create Account
-                </ButtonText>
-              )}
-            </Button>
-
-            {/* Login Link */}
-            <HStack space="xs" style={{ justifyContent: 'center', marginTop: 8 }}>
-              <Text size="md" style={{ color: '#6B7280' }}>
-                Already have an account?
-              </Text>
-              <TouchableOpacity>
-                <ExpoLink href="/login">
-                  <Text size="md" style={{ color: Palette.accentStrong, fontWeight: '700' }}>
-                    Sign In
-                  </Text>
-                </ExpoLink>
-              </TouchableOpacity>
-            </HStack>
-          </VStack>
-        </Card>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        <Text style={styles.title}>नागरिक सूचना</Text>
+        <Text style={styles.subtitle}>Nagarik Suchana</Text>
+        <Text style={styles.tagline}>थाहा पाऊ, प्रश्न गर।</Text>
+      </Animated.View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Palette.backgroundLight,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  content: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoWrapper: {
+    width: 140,
+    height: 140,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  ring: {
+    position: "absolute",
+    borderWidth: 3,
+    borderStyle: "solid",
+    borderRadius: 100,
+  },
+  outerRing: {
+    width: 140,
+    height: 140,
+    borderColor: Palette.primary,
+    borderTopColor: "transparent",
+    borderLeftColor: "transparent",
+  },
+  innerRing: {
+    width: 100,
+    height: 100,
+    borderColor: Palette.accentStrong,
+    borderBottomColor: "transparent",
+    borderRightColor: "transparent",
+  },
+  centerCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Palette.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  buildingIcon: {
+    width: 44,
+    height: 36,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  buildingTop: {
+    width: 44,
+    height: 6,
+    backgroundColor: "#fff",
+    borderRadius: 2,
+  },
+  pillarsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: 44,
+    height: 26,
+  },
+  buildingPillar: {
+    width: 9,
+    height: 26,
+    backgroundColor: "#fff",
+    borderRadius: 1,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#11181C",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#687076",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  tagline: {
+    fontSize: 14,
+    color: "#9BA1A6",
+    textAlign: "center",
+    fontStyle: "italic",
+  },
+});
